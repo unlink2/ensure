@@ -8,12 +8,15 @@ struct arg_lit *verb = NULL;
 struct arg_lit *help = NULL;
 struct arg_lit *version = NULL;
 
+struct arg_str *mode = NULL;
+
+struct arg_str *inputs = NULL;
+
 // arg end stores errors
 struct arg_end *end = NULL;
 
 #define ensr_argtable                                                          \
-  { help, version, verb, end, }
-
+  { help, version, verb, mode, inputs, end, }
 
 void ensr_args_free(void) {
   void *argtable[] = ensr_argtable;
@@ -24,6 +27,8 @@ void ensr_args_parse(int argc, char **argv) {
   help = arg_litn(NULL, "help", 0, 1, "display this help and exit");
   version = arg_litn(NULL, "version", 0, 1, "display version info and exit");
   verb = arg_litn("v", "verbose", 0, 1, "verbose output");
+  mode = arg_str0("m", "mode", "MODE", "select mode [exists|pid|comm]");
+  inputs = arg_strn(NULL, NULL, "INPUT", 0, 4, "Input depends on mode");
   end = arg_end(20);
 
   void *argtable[] = ensr_argtable;
@@ -60,23 +65,29 @@ void ensr_args_parse(int argc, char **argv) {
     exitcode = 1;
     goto exit;
   }
-  
+
   return;
 exit:
   ensr_args_free();
   exit(exitcode); // NOLINT
 }
 
-
-
 int main(int argc, char **argv) {
   ensr_args_parse(argc, argv);
-  
-  // map args to cfg here 
+
+  // map args to cfg here
   struct ensr_config cfg;
   memset(&cfg, 0, sizeof(cfg));
 
   cfg.verbose = verb->count > 0;
+  if (mode->count) {
+    cfg.mode = ensr_mode_from(mode->sval[0]);
+  }
+
+  if (inputs->count) {
+    cfg.inputs = inputs->sval;
+    cfg.inputs_len = inputs->count;
+  }
 
   int res = ensr_main(&cfg);
 
