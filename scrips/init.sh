@@ -2,7 +2,7 @@
 
 # rename to project specific values
 NAME="ensr"
-CONST="ensr"
+CONST="ENSR"
 STRUCT="ensr"
 FN="ensr"
 

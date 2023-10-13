@@ -1,5 +1,5 @@
-#ifndef ensrH__
-#define ensrH__
+#ifndef ENSR_H__
+#define ENSR_H__
 
 struct ensr_config {
   _Bool verbose;
