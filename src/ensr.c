@@ -1,6 +1,7 @@
 #include "ensr.h"
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int ensr_main(struct ensr_config *cfg) {
@@ -12,7 +13,25 @@ int ensr_main(struct ensr_config *cfg) {
   return 0;
 }
 
-enum ensr_mode ensr_mode_from(const char *s) { return ENSR_MODE_EQLINES; }
+enum ensr_mode ensr_mode_from(const char *s) {
+  switch (s[0]) {
+  case 'E':
+    return ENSR_MODE_EQLINES;
+  case 'g':
+    return ENSR_MODE_GTLINES;
+  case 'l':
+    return ENSR_MODE_LTLINES;
+  case 'p':
+    return ENSR_MODE_PID;
+  case 'c':
+    return ENSR_MODE_COMM;
+  default:
+    fprintf(stderr, "Unknown mode: %c\n", s[0]);
+    exit(-1);
+    break;
+  }
+  return ENSR_MODE_EQLINES;
+}
 
 /**
  * Platform specific code

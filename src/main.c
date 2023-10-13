@@ -27,7 +27,9 @@ void ensr_args_parse(int argc, char **argv) {
   help = arg_litn(NULL, "help", 0, 1, "display this help and exit");
   version = arg_litn(NULL, "version", 0, 1, "display version info and exit");
   verb = arg_litn("v", "verbose", 0, 1, "verbose output");
-  mode = arg_str0("m", "mode", "MODE", "select mode [exists|pid|comm]");
+  mode =
+      arg_str0("m", "mode", "MODE",
+               "select mode [E(qual)|g(reater)|l(ess)|e(xists)|p(id)|c(omm)]");
   inputs = arg_strn(NULL, NULL, "INPUT", 0, 4, "Input depends on mode");
   end = arg_end(20);
 
