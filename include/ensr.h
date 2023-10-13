@@ -46,6 +46,14 @@ struct ensr_config {
 
 int ensr_main(struct ensr_config *cfg);
 
+struct ensr_proc {
+  int pid;
+  const char *comm;
+};
+
+struct ensr_proc ensr_proc_pid(int pid);
+struct ensr_proc ensr_proc_name(const char *comm);
+
 /**
  * Checks that the lines received in stdin
  * are exactly n lines
