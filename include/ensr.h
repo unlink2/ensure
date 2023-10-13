@@ -46,9 +46,17 @@ struct ensr_config {
 
 int ensr_main(struct ensr_config *cfg);
 
+/**
+ * Process related stuff
+ * on linux we read proc(5)
+ * on bsd we will use sysctl(2)
+ * for tests, use a dummy implementation
+ */
+
 struct ensr_proc {
   int pid;
   const char *comm;
+  int uid;
 };
 
 struct ensr_proc ensr_proc_pid(int pid);
