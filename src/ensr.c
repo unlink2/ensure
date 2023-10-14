@@ -10,6 +10,8 @@ int ensr_main(struct ensr_config *cfg) {
     return -1;
   }
 
+  ensr_proc_pid(1);
+
   return 0;
 }
 
@@ -30,28 +32,27 @@ enum ensr_mode ensr_mode_from(const char *s) {
     exit(-1);
     break;
   }
-  return ENSR_MODE_EQLINES;
+  return ENSR_MODE_EQN;
 }
 
 /**
  * Platform specific code
  */
 
-#ifdef __linux__
-
 #ifdef ENSR_MOD_PROC
 
+#ifdef __linux__
 struct ensr_proc ensr_proc_pid(int pid) {
   struct ensr_proc proc;
   memset(&proc, 0, sizeof(proc));
   proc.pid = pid;
 
   char buf[ENSR_PATH_MAX];
-  sprintf(buf, "/prc/%d/comm", pid);
+  sprintf(buf, "/proc/%d/comm", pid);
 
   FILE *comm = fopen(buf, "re");
   if (!comm) {
-    fprintf(stderr, "%s", strerror(errno));
+    fprintf(stderr, "%s\n", strerror(errno));
     goto FAIL;
   }
   fgets(proc.comm, ENSR_COMM_MAX, comm);
@@ -65,6 +66,8 @@ FAIL:
 
 #endif
 
+#else
+struct ensr_proc ensr_proc_pid(int pid) { ENSR_MOD_OFF("proc"); }
 #endif
 
 // TODO: implement for each platform

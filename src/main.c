@@ -30,7 +30,7 @@ void ensr_args_parse(int argc, char **argv) {
   mode =
       arg_str0("m", "mode", "MODE",
                "select mode [E(qual)|g(reater)|l(ess)|e(xists)|p(id)|c(omm)]");
-  inputs = arg_strn(NULL, NULL, "INPUT", 0, 4, "Input depends on mode");
+  inputs = arg_strn(NULL, NULL, "INPUT", 0, 1, "Input depends on mode");
   end = arg_end(20);
 
   void *argtable[] = ensr_argtable;
@@ -87,8 +87,7 @@ int main(int argc, char **argv) {
   }
 
   if (inputs->count) {
-    cfg.inputs = inputs->sval;
-    cfg.inputs_len = inputs->count;
+    cfg.input = inputs->sval[0];
   }
 
   int res = ensr_main(&cfg);

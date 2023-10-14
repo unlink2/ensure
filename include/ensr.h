@@ -6,6 +6,12 @@
 #define ENSR_PATH_MAX 4096
 #define ENSR_COMM_MAX 32
 
+#define ENSR_MOD_OFF(name)                                                     \
+  {                                                                            \
+    fprintf(stderr, "Module %s is disabled! Aborting...\n", name);             \
+    exit(-1);                                                                  \
+  }
+
 /**
  * =============================
  * Configuration
@@ -53,8 +59,7 @@ struct ensr_config {
   _Bool verbose;
 
   enum ensr_mode mode;
-  const char **inputs;
-  size_t inputs_len;
+  const char *input;
 
   const char *rule_name;
   const char *proc;
@@ -64,8 +69,6 @@ struct ensr_config {
 };
 
 int ensr_main(struct ensr_config *cfg);
-
-#ifdef ENSR_MOD_STDIO
 
 /**
  * Checks that the lines received in stdin
@@ -77,9 +80,6 @@ int ensr_eqn(int n);
 int ensr_gtn(int n);
 int ensr_ltn(int n);
 
-#endif
-
-#ifdef ENSR_MOD_PROC
 /**
  * Process related stuff
  * on linux we read proc(5)
@@ -105,6 +105,11 @@ struct ensr_proc {
 struct ensr_proc ensr_proc_pid(int pid);
 
 /**
+ * Read process information from pid
+ */
+struct ensr_proc ensr_proc_pid_read(int pid);
+
+/**
  * Get all procs by comm name
  * This returns a sturct that needs to be freed
  */
@@ -112,10 +117,6 @@ struct ensr_proc *ensr_proc_name(const char *comm, size_t *len);
 
 int ensr_comm_running(const char *proc_name);
 int ensr_pid_running(int pid);
-
-#endif
-
-#ifdef ENSR_MOD_PATH
 
 /**
  * Check if the name is a valid program
@@ -128,8 +129,6 @@ int ensr_in_path(const char *path);
 int ensr_path_exists(const char *path);
 
 int ensr_path_owner(const char *path, const char *usr);
-
-#endif
 
 /**
  * Platform init code. This is e.g. where pledge(2) could be used on OpenBSD
