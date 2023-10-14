@@ -35,6 +35,7 @@ int ensr_main(struct ensr_config *cfg) {
       return -1;
     }
 
+    ensr_fproc_header(cfg);
     ok = ensr_proc_name_check(cfg, cfg->input, procs, len);
 
     free(procs);
@@ -125,7 +126,6 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
     return -1;
   }
 
-  ensr_fproc_header(cfg);
   int ok = -1;
   for (size_t i = 0; i < len; i++) {
     struct ensr_proc *proc = &procs[i];
@@ -152,7 +152,6 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
 
 int ensr_proc_pid_check(struct ensr_config *cfg, int pid) {
   struct ensr_proc proc = ensr_proc_pid(pid);
-  ensr_fproc_header(cfg);
   ensr_fproc(cfg, &proc);
   return proc.ok;
 }

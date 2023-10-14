@@ -128,6 +128,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
  * This will always return a single proc
  */
 struct ensr_proc ensr_proc_pid(int pid);
+void ensr_fproc_header(struct ensr_config *cfg);
 
 /**
  * Platform specific
