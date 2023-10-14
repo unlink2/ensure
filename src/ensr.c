@@ -95,7 +95,7 @@ void ensr_fmt(FILE *f, const char *fmt) { ENSR_MOD_OFF("fmt"); }
 #ifdef ENSR_MOD_PROC
 
 void ensr_fproc_header(struct ensr_config *cfg) {
-  fputs("status\ttype\tcomm\tpid\n", cfg->out);
+  fputs("status\ttype\tpid\tcomm\n", cfg->out);
 }
 
 void ensr_fproc(struct ensr_config *cfg, struct ensr_proc *proc) {
@@ -106,7 +106,7 @@ void ensr_fproc(struct ensr_config *cfg, struct ensr_proc *proc) {
     ensr_fmt(cfg->out, cfg->fmt_ok);
     fputs(ENSR_CFG_OK, cfg->out);
   }
-  fprintf(cfg->out, "proc\t%s\t%d\n", proc->comm, proc->pid);
+  fprintf(cfg->out, "proc\t%d\t%s\n", proc->pid, proc->comm);
 }
 
 int ensr_proc_name_check(struct ensr_config *cfg, const char *comm) {
@@ -143,7 +143,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm) {
   if (ok) {
     ensr_fmt(cfg->out, cfg->fmt_err);
     fputs(ENSR_CFG_ERR, cfg->out);
-    fprintf(cfg->out, "proc\t%s\n", comm);
+    fprintf(cfg->out, "proc\t-1\t%s\n", comm);
   }
 
   return ok;
