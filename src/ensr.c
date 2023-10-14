@@ -1,10 +1,12 @@
 #include "ensr.h"
+#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #ifdef __unix__
 #include <unistd.h>
+#include <dirent.h>
 #endif
 
 const char *ensr_getenv(const char *env, const char * or) {
@@ -22,8 +24,23 @@ int ensr_main(struct ensr_config *cfg) {
     return -1;
   }
 
+  int ok = -1;
+
+  switch (cfg->mode) {
+  case ENSR_MODE_COMM:
+    ok = ensr_proc_name_check(cfg, cfg->input);
+    break;
+  case ENSR_MODE_EQN:
+  case ENSR_MODE_GTN:
+  case ENSR_MODE_LTN:
+  case ENSR_MODE_PID:
+  case ENSR_MODE_EXISTS:
+    fprintf(stderr, "Not implemented\n");
+    break;
+  }
+
   ensr_fmt(cfg->out, cfg->fmt_reset);
-  return 0;
+  return ok;
 }
 
 enum ensr_mode ensr_mode_from(const char *s) {
@@ -75,24 +92,61 @@ void ensr_fmt(FILE *f, const char *fmt) {
 void ensr_fmt(FILE *f, const char *fmt) { ENSR_MOD_OFF("fmt"); }
 #endif
 
-/**
- * Platform specific code
- */
-
 #ifdef ENSR_MOD_PROC
 
 void ensr_fproc(struct ensr_config *cfg, struct ensr_proc *proc) {
-  if (proc->ok != 0) {
+  if (proc->ok) {
     ensr_fmt(cfg->out, cfg->fmt_err);
+    fputs(ENSR_CFG_ERR, cfg->out);
   } else {
     ensr_fmt(cfg->out, cfg->fmt_ok);
+    fputs(ENSR_CFG_OK, cfg->out);
   }
-  fprintf(cfg->out, "[v]\t%s\t%d\n", proc->comm, proc->pid);
+  fprintf(cfg->out, "proc\t%s\t%d\n", proc->comm, proc->pid);
+}
+
+int ensr_proc_name_check(struct ensr_config *cfg, const char *comm) {
+  if (!comm) {
+    return -1;
+  }
+
+  size_t len = 0;
+  int *pids = ensr_proc_pids(&len);
+
+  if (pids == NULL) {
+    return -1;
+  }
+
+  int ok = -1;
+  for (size_t i = 0; i < len; i++) {
+    struct ensr_proc proc = ensr_proc_pid(pids[i]);
+
+    if (proc.ok) {
+      ok = proc.ok;
+      break;
+    }
+
+    if (strcmp(comm, proc.comm) == 0) {
+      ok = proc.ok;
+      ensr_fproc(cfg, &proc);
+      break;
+    }
+  }
+
+  free(pids);
+
+  if (ok) {
+    ensr_fmt(cfg->out, cfg->fmt_err);
+    fputs(ENSR_CFG_ERR, cfg->out);
+    fprintf(cfg->out, "proc\t%s\n", comm);
+  }
+
+  return ok;
 }
 
 int ensr_proc_pid_check(struct ensr_config *cfg, int pid) {
   struct ensr_proc proc = ensr_proc_pid(pid);
-  ensr_fproc(cfg, &proc); 
+  ensr_fproc(cfg, &proc);
   return proc.ok;
 }
 
@@ -111,12 +165,64 @@ struct ensr_proc ensr_proc_pid(int pid) {
     goto FAIL;
   }
   fgets(proc.comm, ENSR_COMM_MAX, comm);
+
+  // trim new line 
+  proc.comm[strcspn(proc.comm, "\n")] = '\0';
+
   fclose(comm);
 
   return proc;
 FAIL:
   proc.ok = -1;
   return proc;
+}
+
+int *ensr_proc_pids(size_t *len) {
+  *len = 0;
+  int *pids = NULL;
+
+  DIR *d = opendir("/proc");
+  if (d == NULL) {
+    fprintf(stderr, "%s\n", strerror(errno));
+    return NULL;
+  }
+
+  size_t all_files_cnt = 0;
+  struct dirent *dir = NULL;
+
+  // first simple count all entries
+  // and malloc
+  while ((dir = readdir(d)) != NULL) {
+    all_files_cnt++;
+  }
+
+  pids = malloc(sizeof(int) * all_files_cnt);
+
+  rewinddir(d);
+
+  // now process all pid entries
+  while ((dir = readdir(d)) != NULL) {
+    if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") != 0 &&
+        strcmp(dir->d_name, "..") != 0) {
+
+      // test if the entire name is a digit, if so its a pid!
+      for (size_t i = 0; i < strlen(dir->d_name); i++) {
+        if (!isdigit(dir->d_name[i])) {
+          goto NOT_PID;
+        }
+      }
+
+      pids[*len] = atoi(dir->d_name);
+      *len += 1;
+    }
+    // place continue here to not have label at end of compount statement
+  NOT_PID:
+    continue;
+  }
+
+  closedir(d);
+
+  return pids;
 }
 
 #endif
