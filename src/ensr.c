@@ -94,6 +94,10 @@ void ensr_fmt(FILE *f, const char *fmt) { ENSR_MOD_OFF("fmt"); }
 
 #ifdef ENSR_MOD_PROC
 
+void ensr_fproc_header(struct ensr_config *cfg) {
+  fputs("status\ttype\tcomm\tpid\n", cfg->out);
+}
+
 void ensr_fproc(struct ensr_config *cfg, struct ensr_proc *proc) {
   if (proc->ok) {
     ensr_fmt(cfg->out, cfg->fmt_err);
@@ -117,6 +121,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm) {
     return -1;
   }
 
+  ensr_fproc_header(cfg);
   int ok = -1;
   for (size_t i = 0; i < len; i++) {
     struct ensr_proc proc = ensr_proc_pid(pids[i]);
@@ -146,6 +151,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm) {
 
 int ensr_proc_pid_check(struct ensr_config *cfg, int pid) {
   struct ensr_proc proc = ensr_proc_pid(pid);
+  ensr_fproc_header(cfg);
   ensr_fproc(cfg, &proc);
   return proc.ok;
 }
@@ -166,7 +172,7 @@ struct ensr_proc ensr_proc_pid(int pid) {
   }
   fgets(proc.comm, ENSR_COMM_MAX, comm);
 
-  // trim new line 
+  // trim new line
   proc.comm[strcspn(proc.comm, "\n")] = '\0';
 
   fclose(comm);
