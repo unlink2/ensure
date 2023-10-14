@@ -39,9 +39,9 @@
  */
 
 enum ensr_mode {
-  ENSR_MODE_EQLINES,
-  ENSR_MODE_GTLINES,
-  ENSR_MODE_LTLINES,
+  ENSR_MODE_EQN,
+  ENSR_MODE_GTN,
+  ENSR_MODE_LTN,
   ENSR_MODE_PID,
   ENSR_MODE_COMM,
   ENSR_MODE_EXISTS,
@@ -73,9 +73,9 @@ int ensr_main(struct ensr_config *cfg);
  * This is useful for piping results from commands
  * like grep into ensure
  */
-int ensr_eqnlines(int nlines);
-int ensr_gtnlines(int nlines);
-int ensr_ltnlines(int nlines);
+int ensr_eqn(int n);
+int ensr_gtn(int n);
+int ensr_ltn(int n);
 
 #endif
 

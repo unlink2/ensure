@@ -16,11 +16,11 @@ int ensr_main(struct ensr_config *cfg) {
 enum ensr_mode ensr_mode_from(const char *s) {
   switch (s[0]) {
   case 'E':
-    return ENSR_MODE_EQLINES;
+    return ENSR_MODE_EQN;
   case 'g':
-    return ENSR_MODE_GTLINES;
+    return ENSR_MODE_GTN;
   case 'l':
-    return ENSR_MODE_LTLINES;
+    return ENSR_MODE_LTN;
   case 'p':
     return ENSR_MODE_PID;
   case 'c':
