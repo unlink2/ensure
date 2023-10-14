@@ -35,7 +35,7 @@
 #define ENSR_CFG_FMT_RESET "\x1B[0m"
 
 #define ENSR_CFG_OK "ok\t"
-#define ENSR_CFG_ERR "err\t" 
+#define ENSR_CFG_ERR "err\t"
 
 // env variables
 #define ENSR_ENV_FMT_OK "ENSR_OK"
@@ -119,20 +119,23 @@ struct ensr_proc {
 
 int ensr_proc_pid_check(struct ensr_config *cfg, int pid);
 
-int ensr_proc_name_check(struct ensr_config *cfg, const char *comm);
+int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
+                         struct ensr_proc *procs, size_t len);
 
 /**
+ * Platform specific 
  * Populate proc struct by pid
  * This will always return a single proc
  */
 struct ensr_proc ensr_proc_pid(int pid);
 
 /**
+ * Platform specific
  * Read all pids and return them
  * the pid list is allocated using malloc(3)
  * and should be freed using free()
  */
-int *ensr_proc_pids(size_t *len);
+struct ensr_proc* ensr_proc_pids(size_t *len);
 
 int ensr_comm_running(const char *proc_name);
 int ensr_pid_running(int pid);

@@ -27,9 +27,19 @@ int ensr_main(struct ensr_config *cfg) {
   int ok = -1;
 
   switch (cfg->mode) {
-  case ENSR_MODE_COMM:
-    ok = ensr_proc_name_check(cfg, cfg->input);
+  case ENSR_MODE_COMM: {
+
+    size_t len = 0;
+    struct ensr_proc *procs = ensr_proc_pids(&len);
+    if (procs == NULL) {
+      return -1;
+    }
+
+    ok = ensr_proc_name_check(cfg, cfg->input, procs, len);
+
+    free(procs);
     break;
+  }
   case ENSR_MODE_EQN:
   case ENSR_MODE_GTN:
   case ENSR_MODE_LTN:
@@ -109,36 +119,27 @@ void ensr_fproc(struct ensr_config *cfg, struct ensr_proc *proc) {
   fprintf(cfg->out, "proc\t%d\t%s\n", proc->pid, proc->comm);
 }
 
-int ensr_proc_name_check(struct ensr_config *cfg, const char *comm) {
+int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
+                         struct ensr_proc *procs, size_t len) {
   if (!comm) {
-    return -1;
-  }
-
-  size_t len = 0;
-  int *pids = ensr_proc_pids(&len);
-
-  if (pids == NULL) {
     return -1;
   }
 
   ensr_fproc_header(cfg);
   int ok = -1;
   for (size_t i = 0; i < len; i++) {
-    struct ensr_proc proc = ensr_proc_pid(pids[i]);
-
-    if (proc.ok) {
-      ok = proc.ok;
+    struct ensr_proc *proc = &procs[i];
+    if (proc->ok) {
+      ok = proc->ok;
       break;
     }
 
-    if (strcmp(comm, proc.comm) == 0) {
-      ok = proc.ok;
-      ensr_fproc(cfg, &proc);
+    if (strcmp(comm, proc->comm) == 0) {
+      ok = proc->ok;
+      ensr_fproc(cfg, proc);
       break;
     }
   }
-
-  free(pids);
 
   if (ok) {
     ensr_fmt(cfg->out, cfg->fmt_err);
@@ -183,9 +184,9 @@ FAIL:
   return proc;
 }
 
-int *ensr_proc_pids(size_t *len) {
+struct ensr_proc *ensr_proc_pids(size_t *len) {
   *len = 0;
-  int *pids = NULL;
+  struct ensr_proc *procs = NULL;
 
   DIR *d = opendir("/proc");
   if (d == NULL) {
@@ -202,7 +203,7 @@ int *ensr_proc_pids(size_t *len) {
     all_files_cnt++;
   }
 
-  pids = malloc(sizeof(int) * all_files_cnt);
+  procs = malloc(sizeof(struct ensr_proc) * all_files_cnt);
 
   rewinddir(d);
 
@@ -218,7 +219,11 @@ int *ensr_proc_pids(size_t *len) {
         }
       }
 
-      pids[*len] = atoi(dir->d_name);
+      procs[*len] = ensr_proc_pid(atoi(dir->d_name));
+
+      if (procs[*len].ok) {
+        goto FAIL;
+      }
       *len += 1;
     }
     // place continue here to not have label at end of compount statement
@@ -228,7 +233,10 @@ int *ensr_proc_pids(size_t *len) {
 
   closedir(d);
 
-  return pids;
+  return procs;
+FAIL:
+  free(procs);
+  return NULL;
 }
 
 #endif
