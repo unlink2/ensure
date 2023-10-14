@@ -2,6 +2,7 @@
 #define ENSR_H_
 
 #include <stddef.h>
+#include <stdio.h>
 
 #define ENSR_PATH_MAX 4096
 #define ENSR_COMM_MAX 32
@@ -25,18 +26,19 @@
 #define ENSR_MOD_STDIO 1
 #define ENSR_MOD_PATH 1
 #define ENSR_MOD_PROC 1
+#define ENSR_MOD_FMT 1
 
 // Config variables
-#define ENSR_CFG_FMT_OK ""
-#define ENSR_CFG_FMT_WARN ""
-#define ENSR_CFG_FMT_ERR ""
-#define ENSR_CFG_FMT_OFF ""
+#define ENSR_CFG_FMT_OK "\x1B[32m"
+#define ENSR_CFG_FMT_WARN "\x1B[33m"
+#define ENSR_CFG_FMT_ERR "\x1B[31m"
+#define ENSR_CFG_FMT_RESET "\x1B[0m"
 
 // env variables
 #define ENSR_ENV_FMT_OK "ENSR_OK"
 #define ENSR_ENV_FMT_WARN "ENSR_WARN"
 #define ENSR_ENV_FMT_ERR "ENSR_ERR"
-#define ENSR_ENV_FMT_OFF "ENSR_FMT_OFF"
+#define ENSR_ENV_FMT_RESET "ENSR_FMT_RESET"
 
 /**
  * =============================
@@ -65,8 +67,22 @@ struct ensr_config {
   const char *proc;
   int pid;
 
+  FILE *in;
+  FILE *out;
+
+#ifdef ENSR_MOD_FMT 
+  const char *fmt_ok;
+  const char *fmt_warn;
+  const char *fmt_err;
+  const char *fmt_reset;
+#endif 
+
   const char *path;
 };
+
+struct ensr_config ensr_config_env(void);
+
+void ensr_fmt(FILE *f, const char *fmt);
 
 int ensr_main(struct ensr_config *cfg);
 

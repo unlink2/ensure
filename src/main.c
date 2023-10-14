@@ -78,8 +78,7 @@ int main(int argc, char **argv) {
   ensr_args_parse(argc, argv);
 
   // map args to cfg here
-  struct ensr_config cfg;
-  memset(&cfg, 0, sizeof(cfg));
+  struct ensr_config cfg = ensr_config_env();
 
   cfg.verbose = verb->count > 0;
   if (mode->count) {
