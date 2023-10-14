@@ -81,8 +81,23 @@ void ensr_fmt(FILE *f, const char *fmt) { ENSR_MOD_OFF("fmt"); }
 
 #ifdef ENSR_MOD_PROC
 
+void ensr_fproc(struct ensr_config *cfg, struct ensr_proc *proc) {
+  if (proc->ok != 0) {
+    ensr_fmt(cfg->out, cfg->fmt_err);
+  } else {
+    ensr_fmt(cfg->out, cfg->fmt_ok);
+  }
+  fprintf(cfg->out, "[v]\t%s\t%d\n", proc->comm, proc->pid);
+}
+
+int ensr_proc_pid_check(struct ensr_config *cfg, int pid) {
+  struct ensr_proc proc = ensr_proc_pid(pid);
+  ensr_fproc(cfg, &proc); 
+  return proc.ok;
+}
+
 #ifdef __linux__
-struct ensr_proc ensr_proc_pid_read(int pid) {
+struct ensr_proc ensr_proc_pid(int pid) {
   struct ensr_proc proc;
   memset(&proc, 0, sizeof(proc));
   proc.pid = pid;

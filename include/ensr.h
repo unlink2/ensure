@@ -70,12 +70,12 @@ struct ensr_config {
   FILE *in;
   FILE *out;
 
-#ifdef ENSR_MOD_FMT 
+#ifdef ENSR_MOD_FMT
   const char *fmt_ok;
   const char *fmt_warn;
   const char *fmt_err;
   const char *fmt_reset;
-#endif 
+#endif
 
   const char *path;
 };
@@ -114,16 +114,13 @@ struct ensr_proc {
   int uid;
 };
 
+int ensr_proc_pid_check(struct ensr_config *cfg, int pid);
+
 /**
  * Populate proc struct by pid
  * This will always return a single proc
  */
 struct ensr_proc ensr_proc_pid(int pid);
-
-/**
- * Read process information from pid
- */
-struct ensr_proc ensr_proc_pid_read(int pid);
 
 /**
  * Get all procs by comm name
