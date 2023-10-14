@@ -34,8 +34,8 @@
 #define ENSR_CFG_FMT_ERR "\x1B[31m"
 #define ENSR_CFG_FMT_RESET "\x1B[0m"
 
-#define ENSR_CFG_OK "v\t"
-#define ENSR_CFG_ERR "x\t" 
+#define ENSR_CFG_OK "ok\t"
+#define ENSR_CFG_ERR "err\t" 
 
 // env variables
 #define ENSR_ENV_FMT_OK "ENSR_OK"
