@@ -59,6 +59,8 @@ enum ensr_mode {
   // check if a command is running
   ENSR_MODE_COMM,
 
+  // check if name is in $PATH
+  ENSR_MOD_IN_PATH,
 };
 
 enum ensr_mode ensr_mode_from(const char *s);
