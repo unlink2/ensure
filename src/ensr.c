@@ -19,14 +19,8 @@ const char *ensr_getenv(const char *env, const char * or) {
   return v;
 }
 
-int ensr_main(struct ensr_config *cfg) {
-  if (ensr_platform_init() == -1) {
-    fprintf(stderr, "Platform init failed!\n");
-    return -1;
-  }
-
+int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, size_t i) {
   int ok = -1;
-
   switch (cfg->mode) {
   case ENSR_MODE_COMM: {
     size_t len = 0;
@@ -35,20 +29,16 @@ int ensr_main(struct ensr_config *cfg) {
       return -1;
     }
 
-    ensr_fproc_header(cfg);
-    for (size_t i = 0; i < cfg->input_len; i++) {
-      ok += ensr_proc_name_check(cfg, cfg->input[i], procs, len);
-    }
+    ensr_fproc_header(cfg, ctx);
+    ok = ensr_proc_name_check(cfg, cfg->input[i], procs, len);
 
     free(procs);
     break;
   }
   case ENSR_MODE_PID: {
-    ensr_fproc_header(cfg);
-    for (size_t i = 0; i < cfg->input_len; i++) {
-      if (ensr_strnisint(cfg->input[i], strlen(cfg->input[i]))) {
-        ok += ensr_proc_pid_check(cfg, atoi(cfg->input[i]));
-      }
+    ensr_fproc_header(cfg, ctx);
+    if (ensr_strnisint(cfg->input[i], strlen(cfg->input[i]))) {
+      ok = ensr_proc_pid_check(cfg, atoi(cfg->input[i]));
     }
     break;
   }
@@ -59,8 +49,23 @@ int ensr_main(struct ensr_config *cfg) {
     break;
   }
 
-  if (ok != 0) {
-    ok = -1;
+  return ok;
+}
+
+int ensr_main(struct ensr_config *cfg) {
+  if (ensr_platform_init() == -1) {
+    fprintf(stderr, "Platform init failed!\n");
+    return -1;
+  }
+  struct ensr_ctx ctx;
+  memset(&ctx, 0, sizeof(ctx));
+
+  int ok = 0;
+
+  for (size_t i = 0; i < cfg->input_len; i++) {
+    if (ensr_do(cfg, &ctx, i) != 0) {
+      ok = -1;
+    }
   }
 
   ensr_fmt(cfg->out, cfg->fmt_reset);
@@ -129,8 +134,14 @@ void ensr_fmt(FILE *f, const char *fmt) { ENSR_MOD_OFF("fmt"); }
 
 #ifdef ENSR_MOD_PROC
 
-void ensr_fproc_header(struct ensr_config *cfg) {
+void ensr_fproc_header(struct ensr_config *cfg, struct ensr_ctx *ctx) {
+  // only draw header once
+  if (ctx->header_drawn) {
+    return;
+  }
+
   fputs("status\ttype\tpid\tcomm\n", cfg->out);
+  ctx->header_drawn = true;
 }
 
 void ensr_fproc(struct ensr_config *cfg, struct ensr_proc *proc) {

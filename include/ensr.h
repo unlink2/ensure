@@ -91,6 +91,10 @@ struct ensr_config {
   const char *path;
 };
 
+struct ensr_ctx {
+  _Bool header_drawn;
+};
+
 struct ensr_config ensr_config_env(void);
 
 void ensr_fmt(FILE *f, const char *fmt);
@@ -138,7 +142,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
  * This will always return a single proc
  */
 struct ensr_proc ensr_proc_pid(int pid);
-void ensr_fproc_header(struct ensr_config *cfg);
+void ensr_fproc_header(struct ensr_config *cfg, struct ensr_ctx *ctx);
 
 /**
  * Platform specific
