@@ -26,7 +26,7 @@
 #define ENSR_MOD_FMT 1
 #define ENSR_MOD_PATH 1
 #define ENSR_MOD_PROC 1
-#define ENSR_MOD_CMD 1
+#define ENSR_MOD_CMP 1
 
 // Config variables
 #define ENSR_CFG_FMT_OK "\x1B[32m"
@@ -50,12 +50,8 @@
  */
 
 enum ensr_mode {
-  // eq check number either from stdin or input
-  ENSR_MODE_EQN,
-  // gt check number either from stdin or input
-  ENSR_MODE_GTN,
-  // lt check number either from stdin or input
-  ENSR_MODE_LTN,
+  // check if input is an integer and is zero
+  ENSR_MODE_ISZERO,
 
   // check if a pid is running
   ENSR_MODE_PID,
@@ -105,14 +101,9 @@ _Bool ensr_strnisint(const char *str, size_t n);
 void ensr_trimnl(char *s);
 
 /**
- * Checks that the lines received in stdin
- * are exactly n lines
- * This is useful for piping results from commands
- * like grep into ensure
+ * Checks if number recieved over stdin is zero
  */
-int ensr_eqn(int n);
-int ensr_gtn(int n);
-int ensr_ltn(int n);
+int ensr_iszero(struct ensr_config *cfg, int n);
 
 /**
  * Process related stuff

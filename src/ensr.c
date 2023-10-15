@@ -45,16 +45,15 @@ int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, const char *input) {
     }
     break;
   }
-  case ENSR_MODE_EQN:
+  case ENSR_MODE_ISZERO:
     if (ensr_strnisint(input, strlen(input))) {
-      ok = ensr_eqn(atoi(input));
+      ok = ensr_iszero(cfg, atoi(input));
     } else {
       ensr_fmt(cfg->out, cfg->fmt_warn);
       fprintf(cfg->out, "%s is not an integer\n", input);
     }
     break;
-  case ENSR_MODE_GTN:
-  case ENSR_MODE_LTN:
+  default:
     fprintf(stderr, "Not implemented\n");
     break;
   }
@@ -113,12 +112,8 @@ void ensr_trimnl(char *s) {
 
 enum ensr_mode ensr_mode_from(const char *s) {
   switch (s[0]) {
-  case 'E':
-    return ENSR_MODE_EQN;
-  case 'g':
-    return ENSR_MODE_GTN;
-  case 'l':
-    return ENSR_MODE_LTN;
+  case 'z':
+    return ENSR_MODE_ISZERO;
   case 'p':
     return ENSR_MODE_PID;
   case 'c':
@@ -128,7 +123,7 @@ enum ensr_mode ensr_mode_from(const char *s) {
     exit(-1);
     break;
   }
-  return ENSR_MODE_EQN;
+  return ENSR_MODE_ISZERO;
 }
 
 struct ensr_config ensr_config_env(void) {
@@ -160,20 +155,24 @@ void ensr_fmt(FILE *f, const char *fmt) {
 void ensr_fmt(FILE *f, const char *fmt) { ENSR_MOD_OFF("fmt"); }
 #endif
 
-#ifdef ENSR_MOD_CMD
+#ifdef ENSR_MOD_CMP
 
-int ensr_eqn(int n) { return -1; }
-
-int ensr_gtn(int n) { return -1; }
-
-int ensr_ltn(int n) { return -1; }
+int ensr_iszero(struct ensr_config *cfg, int n) {
+  bool z = n == 0;
+  if (z) {
+    ensr_fmt(cfg->out, cfg->fmt_ok);
+    fprintf(cfg->out, "%s\t%d\n", ENSR_CFG_OK, n);
+    return 0;
+  } else {
+    ensr_fmt(cfg->out, cfg->fmt_err);
+    fprintf(cfg->out, "%s\t%d\n", ENSR_CFG_ERR, n);
+    return -1;
+  }
+}
 
 #else
-int ensr_eqn(int n) { ENSR_MOD_OFF("cmd"); }
 
-int ensr_gtn(int n) { ENSR_MOD_OFF("cmd"); }
-
-int ensr_ltn(int n) { ENSR_MOD_OFF("cmd"); }
+int ensr_iszero(int n) { ENSR_MOD_OFF("cmp"); }
 
 #endif
 
