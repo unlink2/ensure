@@ -36,19 +36,30 @@ int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, const char *input) {
     break;
   }
   case ENSR_MODE_PID: {
-    ensr_fproc_header(cfg, ctx);
     if (ensr_strnisint(input, strlen(input))) {
+      ensr_fproc_header(cfg, ctx);
       ok = ensr_proc_pid_check(cfg, atoi(input));
+    } else {
+      ensr_fmt(cfg->out, cfg->fmt_warn);
+      fprintf(cfg->out, "%s is not a valid pid\n", input);
     }
     break;
   }
   case ENSR_MODE_EQN:
+    if (ensr_strnisint(input, strlen(input))) {
+      ok = ensr_eqn(atoi(input));
+    } else {
+      ensr_fmt(cfg->out, cfg->fmt_warn);
+      fprintf(cfg->out, "%s is not an integer\n", input);
+    }
+    break;
   case ENSR_MODE_GTN:
   case ENSR_MODE_LTN:
     fprintf(stderr, "Not implemented\n");
     break;
   }
 
+  ensr_fmt(cfg->out, cfg->fmt_reset);
   return ok;
 }
 
@@ -81,7 +92,6 @@ int ensr_main(struct ensr_config *cfg) {
     }
   }
 
-  ensr_fmt(cfg->out, cfg->fmt_reset);
   return ok;
 }
 
@@ -148,6 +158,23 @@ void ensr_fmt(FILE *f, const char *fmt) {
 #else
 
 void ensr_fmt(FILE *f, const char *fmt) { ENSR_MOD_OFF("fmt"); }
+#endif
+
+#ifdef ENSR_MOD_CMD
+
+int ensr_eqn(int n) { return -1; }
+
+int ensr_gtn(int n) { return -1; }
+
+int ensr_ltn(int n) { return -1; }
+
+#else
+int ensr_eqn(int n) { ENSR_MOD_OFF("cmd"); }
+
+int ensr_gtn(int n) { ENSR_MOD_OFF("cmd"); }
+
+int ensr_ltn(int n) { ENSR_MOD_OFF("cmd"); }
+
 #endif
 
 #ifdef ENSR_MOD_PROC

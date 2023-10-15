@@ -23,10 +23,10 @@
 
 // Optional modules
 
-#define ENSR_MOD_STDIO 1
+#define ENSR_MOD_FMT 1
 #define ENSR_MOD_PATH 1
 #define ENSR_MOD_PROC 1
-#define ENSR_MOD_FMT 1
+#define ENSR_MOD_CMD 1
 
 // Config variables
 #define ENSR_CFG_FMT_OK "\x1B[32m"
