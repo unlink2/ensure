@@ -127,7 +127,8 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
     return -1;
   }
 
-  int ok = -1;
+  int ok = 0;
+  size_t count = 0;
   for (size_t i = 0; i < len; i++) {
     struct ensr_proc *proc = &procs[i];
     if (proc->ok) {
@@ -136,16 +137,17 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
     }
 
     if (strcmp(comm, proc->comm) == 0) {
-      ok = proc->ok;
+      count++;
       ensr_fproc(cfg, proc);
-      break;
     }
   }
 
-  if (ok) {
+  if (!count) {
     ensr_fmt(cfg->out, cfg->fmt_err);
     fputs(ENSR_CFG_ERR, cfg->out);
     fprintf(cfg->out, "proc\t-1\t%s\n", comm);
+
+    ok = -1;
   }
 
   return ok;
