@@ -118,16 +118,16 @@ size_t ensr_glob_next(const char *pat, const char **str, size_t n,
 
 _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
                       size_t str_len) {
-  bool any = false;
-  char patc = '\0';
+  char patc = '\0'; // \0 means any char will match!
   char c = '\0';
 
   size_t pati = 0;
 
   for (size_t i = 0; pati < pat_len && i < str_len; i++) {
+    // get next pattern char
 
     c = str[i];
-    if (!any && c != patc) {
+    if (patc != '\0' && c != patc) {
       return false;
     }
   }
