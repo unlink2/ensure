@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #ifdef __unix__
 #include <unistd.h>
 #include <dirent.h>
@@ -42,15 +43,21 @@ int ensr_main(struct ensr_config *cfg) {
     free(procs);
     break;
   }
+  case ENSR_MODE_PID: {
+    ensr_fproc_header(cfg);
+    for (size_t i = 0; i < cfg->input_len; i++) {
+      if (ensr_strnisint(cfg->input[i], strlen(cfg->input[i]))) {
+        ok += ensr_proc_pid_check(cfg, atoi(cfg->input[i]));
+      }
+    }
+    break;
+  }
   case ENSR_MODE_EQN:
   case ENSR_MODE_GTN:
   case ENSR_MODE_LTN:
-  case ENSR_MODE_PID:
-  case ENSR_MODE_EXISTS:
     fprintf(stderr, "Not implemented\n");
     break;
   }
-
 
   if (ok != 0) {
     ok = -1;
@@ -58,6 +65,17 @@ int ensr_main(struct ensr_config *cfg) {
 
   ensr_fmt(cfg->out, cfg->fmt_reset);
   return ok;
+}
+
+_Bool ensr_strnisint(const char *str, size_t n) {
+  // test if the entire name is a digit, if so its a pid!
+  for (size_t i = 0; i < n; i++) {
+    if (!isdigit(str[i])) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 enum ensr_mode ensr_mode_from(const char *s) {
@@ -175,7 +193,7 @@ struct ensr_proc ensr_proc_pid(int pid) {
 
   FILE *comm = fopen(buf, "re");
   if (!comm) {
-    fprintf(stderr, "%s\n", strerror(errno));
+    // fprintf(stderr, "%s\n", strerror(errno));
     goto FAIL;
   }
   fgets(proc.comm, ENSR_COMM_MAX, comm);
@@ -217,15 +235,8 @@ struct ensr_proc *ensr_proc_pids(size_t *len) {
   // now process all pid entries
   while ((dir = readdir(d)) != NULL) {
     if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") != 0 &&
-        strcmp(dir->d_name, "..") != 0) {
-
-      // test if the entire name is a digit, if so its a pid!
-      for (size_t i = 0; i < strlen(dir->d_name); i++) {
-        if (!isdigit(dir->d_name[i])) {
-          goto NOT_PID;
-        }
-      }
-
+        strcmp(dir->d_name, "..") != 0 &&
+        ensr_strnisint(dir->d_name, strlen(dir->d_name))) {
       procs[*len] = ensr_proc_pid(atoi(dir->d_name));
 
       if (procs[*len].ok) {
@@ -233,9 +244,6 @@ struct ensr_proc *ensr_proc_pids(size_t *len) {
       }
       *len += 1;
     }
-    // place continue here to not have label at end of compount statement
-  NOT_PID:
-    continue;
   }
 
   closedir(d);

@@ -50,12 +50,19 @@
  */
 
 enum ensr_mode {
+  // eq check number either from stdin or input
   ENSR_MODE_EQN,
+  // gt check number either from stdin or input
   ENSR_MODE_GTN,
+  // lt check number either from stdin or input
   ENSR_MODE_LTN,
+
+  // check if a pid is running
   ENSR_MODE_PID,
+
+  // check if a command is running
   ENSR_MODE_COMM,
-  ENSR_MODE_EXISTS,
+
 };
 
 enum ensr_mode ensr_mode_from(const char *s);
@@ -89,6 +96,8 @@ struct ensr_config ensr_config_env(void);
 void ensr_fmt(FILE *f, const char *fmt);
 
 int ensr_main(struct ensr_config *cfg);
+
+_Bool ensr_strnisint(const char *str, size_t n);
 
 /**
  * Checks that the lines received in stdin
@@ -124,7 +133,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
                          struct ensr_proc *procs, size_t len);
 
 /**
- * Platform specific 
+ * Platform specific
  * Populate proc struct by pid
  * This will always return a single proc
  */
@@ -137,7 +146,7 @@ void ensr_fproc_header(struct ensr_config *cfg);
  * the pid list is allocated using malloc(3)
  * and should be freed using free()
  */
-struct ensr_proc* ensr_proc_pids(size_t *len);
+struct ensr_proc *ensr_proc_pids(size_t *len);
 
 int ensr_comm_running(const char *proc_name);
 int ensr_pid_running(int pid);
