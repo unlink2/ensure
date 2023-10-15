@@ -64,7 +64,8 @@ struct ensr_config {
   _Bool verbose;
 
   enum ensr_mode mode;
-  const char *input;
+  const char **input;
+  size_t input_len;
 
   const char *rule_name;
   const char *proc;

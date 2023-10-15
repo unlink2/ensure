@@ -28,7 +28,6 @@ int ensr_main(struct ensr_config *cfg) {
 
   switch (cfg->mode) {
   case ENSR_MODE_COMM: {
-
     size_t len = 0;
     struct ensr_proc *procs = ensr_proc_pids(&len);
     if (procs == NULL) {
@@ -36,7 +35,9 @@ int ensr_main(struct ensr_config *cfg) {
     }
 
     ensr_fproc_header(cfg);
-    ok = ensr_proc_name_check(cfg, cfg->input, procs, len);
+    for (size_t i = 0; i < cfg->input_len; i++) {
+      ok = ensr_proc_name_check(cfg, cfg->input[i], procs, len);
+    }
 
     free(procs);
     break;
