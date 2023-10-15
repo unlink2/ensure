@@ -113,13 +113,26 @@ void ensr_trimnl(char *s) {
 size_t ensr_glob_next(const char *pat, const char **str, size_t n,
                       size_t stride, size_t index) {
 
-  char current = '\0'; // \0 means any character is currently valid
-  
-
   return -1;
 }
 
-_Bool ensr_glob_match(const char *pat, const char *str) { return false; }
+_Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
+                      size_t str_len) {
+  bool any = false;
+  char patc = '\0';
+  char c = '\0';
+
+  size_t pati = 0;
+
+  for (size_t i = 0; pati < pat_len && i < str_len; i++) {
+
+    c = str[i];
+    if (!any && c != patc) {
+      return false;
+    }
+  }
+  return true;
+}
 
 enum ensr_mode ensr_mode_from(const char *s) {
   switch (s[0]) {

@@ -6,8 +6,8 @@
 #include "ensr.h"
 
 void test_glob(void **state) {
-  assert_true(ensr_glob_match("test", "test"));
-  assert_true(ensr_glob_match("?est", "test"));
+  assert_true(ensr_glob_match("test", 4, "test", 4));
+  assert_true(ensr_glob_match("?est", 4, "test", 4));
 }
 
 int main(int arc, char **argv) {
