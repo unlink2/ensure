@@ -110,6 +110,17 @@ void ensr_trimnl(char *s) {
   s[strcspn(s, "\n")] = '\0';
 }
 
+size_t ensr_glob_next(const char *pat, const char **str, size_t n,
+                      size_t stride, size_t index) {
+
+  char current = '\0'; // \0 means any character is currently valid
+  
+
+  return -1;
+}
+
+_Bool ensr_glob_match(const char *pat, const char *str) { return false; }
+
 enum ensr_mode ensr_mode_from(const char *s) {
   switch (s[0]) {
   case 'z':
