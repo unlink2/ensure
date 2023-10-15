@@ -19,7 +19,7 @@ const char *ensr_getenv(const char *env, const char * or) {
   return v;
 }
 
-int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, size_t i) {
+int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, const char *input) {
   int ok = -1;
   switch (cfg->mode) {
   case ENSR_MODE_COMM: {
@@ -30,15 +30,15 @@ int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, size_t i) {
     }
 
     ensr_fproc_header(cfg, ctx);
-    ok = ensr_proc_name_check(cfg, cfg->input[i], procs, len);
+    ok = ensr_proc_name_check(cfg, input, procs, len);
 
     free(procs);
     break;
   }
   case ENSR_MODE_PID: {
     ensr_fproc_header(cfg, ctx);
-    if (ensr_strnisint(cfg->input[i], strlen(cfg->input[i]))) {
-      ok = ensr_proc_pid_check(cfg, atoi(cfg->input[i]));
+    if (ensr_strnisint(input, strlen(input))) {
+      ok = ensr_proc_pid_check(cfg, atoi(input));
     }
     break;
   }
@@ -62,9 +62,22 @@ int ensr_main(struct ensr_config *cfg) {
 
   int ok = 0;
 
+  // process inputs
   for (size_t i = 0; i < cfg->input_len; i++) {
-    if (ensr_do(cfg, &ctx, i) != 0) {
+    if (ensr_do(cfg, &ctx, cfg->input[i]) != 0) {
       ok = -1;
+    }
+  }
+
+  if (cfg->input_len == 0) {
+    // process stdin
+    const int buflen = 1024;
+    char buf[buflen];
+    while (fgets(buf, buflen, cfg->in)) {
+      ensr_trimnl(buf);
+      if (ensr_do(cfg, &ctx, buf) != 0) {
+        ok = -1;
+      }
     }
   }
 
@@ -81,6 +94,11 @@ _Bool ensr_strnisint(const char *str, size_t n) {
   }
 
   return true;
+}
+
+void ensr_trimnl(char *s) {
+  // trim new line
+  s[strcspn(s, "\n")] = '\0';
 }
 
 enum ensr_mode ensr_mode_from(const char *s) {
@@ -208,9 +226,7 @@ struct ensr_proc ensr_proc_pid(int pid) {
     goto FAIL;
   }
   fgets(proc.comm, ENSR_COMM_MAX, comm);
-
-  // trim new line
-  proc.comm[strcspn(proc.comm, "\n")] = '\0';
+  ensr_trimnl(proc.comm);
 
   fclose(comm);
 

@@ -102,6 +102,7 @@ void ensr_fmt(FILE *f, const char *fmt);
 int ensr_main(struct ensr_config *cfg);
 
 _Bool ensr_strnisint(const char *str, size_t n);
+void ensr_trimnl(char *s);
 
 /**
  * Checks that the lines received in stdin
