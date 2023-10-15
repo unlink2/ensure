@@ -36,7 +36,7 @@ int ensr_main(struct ensr_config *cfg) {
 
     ensr_fproc_header(cfg);
     for (size_t i = 0; i < cfg->input_len; i++) {
-      ok = ensr_proc_name_check(cfg, cfg->input[i], procs, len);
+      ok += ensr_proc_name_check(cfg, cfg->input[i], procs, len);
     }
 
     free(procs);
@@ -49,6 +49,11 @@ int ensr_main(struct ensr_config *cfg) {
   case ENSR_MODE_EXISTS:
     fprintf(stderr, "Not implemented\n");
     break;
+  }
+
+
+  if (ok != 0) {
+    ok = -1;
   }
 
   ensr_fmt(cfg->out, cfg->fmt_reset);
