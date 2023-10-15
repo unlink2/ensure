@@ -69,7 +69,7 @@ int ensr_main(struct ensr_config *cfg) {
     }
   }
 
-  if (cfg->input_len == 0) {
+  if (cfg->input_len == 0 || !isatty(fileno(cfg->in))) {
     // process stdin
     const int buflen = 1024;
     char buf[buflen];
