@@ -93,6 +93,12 @@ struct ensr_ctx {
   _Bool header_drawn;
 };
 
+struct ensr_globpat {
+  char c;
+  _Bool match_any;
+  char match_until;
+};
+
 struct ensr_config ensr_config_env(void);
 
 void ensr_fmt(FILE *f, const char *fmt);
