@@ -125,6 +125,18 @@ _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
 
   for (size_t i = 0; pati < pat_len && i < str_len; i++) {
     // get next pattern char
+    if (c) {
+      patc = pat[pati++];
+      switch (patc) {
+      case '\\':
+        patc = pat[pati++];
+        break;
+      case '?':
+      case '*':
+      default:
+        break;
+      }
+    }
 
     c = str[i];
     if (patc != '\0' && c != patc) {
