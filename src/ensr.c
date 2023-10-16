@@ -116,6 +116,24 @@ size_t ensr_glob_next(const char *pat, const char **str, size_t n,
   return -1;
 }
 
+char ensr_glob_patnext(const char *pat, size_t pat_len, size_t *i) {
+  // get next pattern char
+  char patc = pat[*i];
+  *i += 1;
+  switch (patc) {
+  case '\\':
+    patc = pat[*i];
+    *i += 1;
+    break;
+  case '?':
+  case '*':
+  default:
+    break;
+  }
+
+  return patc;
+}
+
 _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
                       size_t str_len) {
   char patc = '\0'; // \0 means any char will match!
@@ -124,20 +142,7 @@ _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
   size_t pati = 0;
 
   for (size_t i = 0; pati < pat_len && i < str_len; i++) {
-    // get next pattern char
-    if (c) {
-      patc = pat[pati++];
-      switch (patc) {
-      case '\\':
-        patc = pat[pati++];
-        break;
-      case '?':
-      case '*':
-      default:
-        break;
-      }
-    }
-
+    patc = ensr_glob_patnext(pat, pat_len, &pati);
     c = str[i];
     if (patc != '\0' && c != patc) {
       return false;

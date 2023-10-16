@@ -99,18 +99,22 @@ void ensr_fmt(FILE *f, const char *fmt);
 
 int ensr_main(struct ensr_config *cfg);
 
-// returns the next item in an array of strings 
-// the array is incremented by stride bytes for each iteration (if stride is 0 it will use sizeof(char*) bytes)
-// the array is of size n and the search for the next valid item will begin at index
-// Returns the next index. Returns -1 on error.
-size_t ensr_glob_next(const char *pat, const char **str, size_t n, size_t stride, size_t index);
+// returns the next item in an array of strings
+// the array is incremented by stride bytes for each iteration (if stride is 0
+// it will use sizeof(char*) bytes) the array is of size n and the search for
+// the next valid item will begin at index Returns the next index. Returns -1 on
+// error.
+size_t ensr_glob_next(const char *pat, const char **str, size_t n,
+                      size_t stride, size_t index);
 
-// Glob patterns currently supported: 
+char ensr_glob_patnext(const char *pat, size_t pat_len, size_t *i);
+// Glob patterns currently supported:
 //  *: Matches any sequence of characters
 //  ?: Matches a single character
 //  \x: Matches the literal character x
 // TODO: put glob documnation in man
-_Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str, size_t str_len);
+_Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
+                      size_t str_len);
 
 _Bool ensr_strnisint(const char *str, size_t n);
 void ensr_trimnl(char *s);
