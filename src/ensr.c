@@ -116,41 +116,44 @@ size_t ensr_glob_next(const char *pat, const char **str, size_t n,
   return -1;
 }
 
-char ensr_glob_patnext(const char *pat, size_t pat_len, size_t *i) {
+struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
+                                      size_t *i) {
+  struct ensr_globpat gpat;
   // get next pattern char
-  char patc = pat[*i];
+  gpat.c = pat[*i];
   *i += 1;
-  switch (patc) {
+  switch (gpat.c) {
   case '\\':
-    patc = pat[*i];
+    gpat.c = pat[*i];
     *i += 1;
     break;
   case '?':
+    gpat.match_any = true;
+    break;
   case '*':
     break;
   default:
     break;
   }
 
-  return patc;
+  return gpat;
 }
 
 _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
                       size_t str_len) {
   size_t pati = 0;
-  char patc =
-      ensr_glob_patnext(pat, pat_len, &pati); // \0 means any char will match!
-  char patc_next = ensr_glob_patnext(pat, pat_len, &pati);
+  struct ensr_globpat patc;
+  memset(&patc, 0, sizeof(patc));
 
   char c = '\0';
 
   for (size_t i = 0; pati < pat_len && i < str_len; i++) {
     c = str[i];
-    if (patc_next == c) {
-      patc = patc_next;
-      patc_next = ensr_glob_patnext(pat, pat_len, &pati);
+    if (!patc.match_until || patc.match_until == c) {
+      patc = ensr_glob_patnext(pat, pat_len,
+                               &pati); // \0 means any char will match!
     }
-    if (patc != '\0' && c != patc) {
+    if (!patc.match_any && c != patc.c) {
       return false;
     }
   }

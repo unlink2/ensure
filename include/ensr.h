@@ -94,6 +94,7 @@ struct ensr_ctx {
 };
 
 struct ensr_globpat {
+  size_t read; // how many bytes of the pattern were consumed
   char c;
   _Bool match_any;
   char match_until;
@@ -113,7 +114,8 @@ int ensr_main(struct ensr_config *cfg);
 size_t ensr_glob_next(const char *pat, const char **str, size_t n,
                       size_t stride, size_t index);
 
-char ensr_glob_patnext(const char *pat, size_t pat_len, size_t *i);
+struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
+                                      size_t *i);
 // Glob patterns currently supported:
 //  *: Matches any sequence of characters
 //  ?: Matches a single character
