@@ -24,6 +24,9 @@ void test_glob(void **state) {
   }
 
   assert_true(ensr_glob_match("test", 4, "test", 4));
+  assert_true(ensr_glob_match("te\\*st", 6, "te*st", 5));
+  assert_true(ensr_glob_match("te\\?st", 6, "te?st", 5));
+  assert_true(ensr_glob_match("te\\Xst", 6, "teXst", 5));
   assert_true(ensr_glob_match("?est", 4, "test", 4));
   assert_true(ensr_glob_match("*est", 4, "test", 4));
   assert_true(ensr_glob_match("*st", 3, "test", 4));
