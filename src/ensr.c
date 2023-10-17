@@ -122,6 +122,8 @@ struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
   // get next pattern char
   gpat.c = pat[i];
   gpat.read = 1;
+  gpat.match_until = '\0';
+
   switch (gpat.c) {
   case '\\':
     gpat.c = pat[i + 1];
@@ -131,6 +133,7 @@ struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
     gpat.match_any = true;
     break;
   case '*':
+    gpat.match_any = true;
     gpat.match_until = ensr_glob_patnext(pat, pat_len, i + 1).c;
     break;
   default:
@@ -148,7 +151,8 @@ _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
 
   char c = '\0';
 
-  for (size_t i = 0; pati < pat_len && i < str_len; i++) {
+  size_t i = 0;
+  for (i = 0; pati < pat_len && i < str_len; i++) {
     c = str[i];
     if (!patc.match_until || patc.match_until == c) {
       patc = ensr_glob_patnext(pat, pat_len, pati);
@@ -158,9 +162,11 @@ _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
       return false;
     }
 
-    patc.match_any = false;
+    if (!patc.match_until) {
+      patc.match_any = false;
+    }
   }
-  return true;
+  return pati == pat_len && i == str_len;
 }
 
 enum ensr_mode ensr_mode_from(const char *s) {
@@ -267,7 +273,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
       break;
     }
 
-    if (strcmp(comm, proc->comm) == 0) {
+    if (ensr_glob_match(comm, strlen(comm), proc->comm, strlen(proc->comm))) {
       count++;
       ensr_fproc(cfg, proc);
     }

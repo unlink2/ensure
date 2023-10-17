@@ -11,7 +11,7 @@ void test_glob(void **state) {
     assert_int_equal('e', ensr_glob_patnext("test", 4, 1).c);
     assert_int_equal('s', ensr_glob_patnext("test", 4, 2).c);
     assert_int_equal('t', ensr_glob_patnext("test", 4, 3).c);
-    
+
     assert_true(ensr_glob_patnext("?est", 4, 0).match_any);
     assert_int_equal('e', ensr_glob_patnext("*est", 4, 0).match_until);
   }
@@ -25,11 +25,13 @@ void test_glob(void **state) {
 
   assert_true(ensr_glob_match("test", 4, "test", 4));
   assert_true(ensr_glob_match("?est", 4, "test", 4));
-  assert_false(ensr_glob_match("*st", 4, "test", 4));
-  assert_false(ensr_glob_match("*s*", 4, "test", 4));
+  assert_true(ensr_glob_match("*est", 4, "test", 4));
+  assert_true(ensr_glob_match("*st", 3, "test", 4));
+  assert_true(ensr_glob_match("*s*", 3, "test", 4));
 
   assert_false(ensr_glob_match("?est", 4, "tast", 4));
   assert_false(ensr_glob_match("*s*", 4, "teat", 4));
+  assert_false(ensr_glob_match("*es", 3, "test", 4));
 }
 
 int main(int arc, char **argv) {
