@@ -117,20 +117,21 @@ size_t ensr_glob_next(const char *pat, const char **str, size_t n,
 }
 
 struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
-                                      size_t *i) {
+                                      size_t i) {
   struct ensr_globpat gpat;
   // get next pattern char
-  gpat.c = pat[*i];
-  *i += 1;
+  gpat.c = pat[i];
+  gpat.read = 1;
   switch (gpat.c) {
   case '\\':
-    gpat.c = pat[*i];
-    *i += 1;
+    gpat.c = pat[i + 1];
+    gpat.read = 2;
     break;
   case '?':
     gpat.match_any = true;
     break;
   case '*':
+    gpat.match_until = ensr_glob_patnext(pat, pat_len, i + 1).c;
     break;
   default:
     break;
@@ -150,12 +151,14 @@ _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
   for (size_t i = 0; pati < pat_len && i < str_len; i++) {
     c = str[i];
     if (!patc.match_until || patc.match_until == c) {
-      patc = ensr_glob_patnext(pat, pat_len,
-                               &pati); // \0 means any char will match!
+      patc = ensr_glob_patnext(pat, pat_len, pati);
+      pati += patc.read;
     }
     if (!patc.match_any && c != patc.c) {
       return false;
     }
+
+    patc.match_any = false;
   }
   return true;
 }

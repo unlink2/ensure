@@ -115,7 +115,7 @@ size_t ensr_glob_next(const char *pat, const char **str, size_t n,
                       size_t stride, size_t index);
 
 struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
-                                      size_t *i);
+                                      size_t i);
 // Glob patterns currently supported:
 //  *: Matches any sequence of characters
 //  ?: Matches a single character
