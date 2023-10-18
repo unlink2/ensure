@@ -368,6 +368,7 @@ struct ensr_proc *ensr_proc_pids(size_t *len) {
   return procs;
 FAIL:
   free(procs);
+  closedir(d);
   return NULL;
 }
 
