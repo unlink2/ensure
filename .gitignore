@@ -61,6 +61,3 @@ compile_commands.json
 .clang_complete
 .clangd
 
-# premake generated files 
-*.make
-Makefile

@@ -17,7 +17,7 @@ function replace() {
 	find ./ -type f -name '*.c' -exec sed -i "s/$1/$2/g" {} \;
 	find ./ -type f -name '*.h' -exec sed -i "s/$1/$2/g" {} \;
 	find ./ -type f -name '*.md' -exec sed -i "s/$1/$2/g" {} \;
-	find ./ -type f -name '*.lua' -exec sed -i "s/$1/$2/g" {} \;
+	find ./ -type f -name 'makefile' -exec sed -i "s/$1/$2/g" {} \;
 	find ./ -type f -name '*.sh' -exec sed -i "s/$1/$2/g" {} \;
 	find ./doc/ -type f -name '*' -exec sed -i "s/$1/$2/g" {} \;
 }

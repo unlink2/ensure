@@ -1,4 +1,4 @@
 #!/bin/sh
 
-premake5 gmake && make && ./bin/Debug/ensure "$@"
+make && ./bin/ensure "$@"
 

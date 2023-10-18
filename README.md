@@ -12,7 +12,7 @@ Simple tool that checks certain system conditions in a declarative way
 
 ## Installation
 
-To build this program you will require a recent C compiler, premake, `libargtable2` and `libcmocka` for unit tests.
+To build this program you will require a recent C compiler, make, `libargtable2` and `libcmocka` for unit tests.
 
 ```sh
 premake gmake # to build gnu make file 
