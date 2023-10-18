@@ -31,6 +31,7 @@ void test_glob(void **state) {
   assert_true(ensr_glob_match("*est", 4, "test", 4));
   assert_true(ensr_glob_match("*st", 3, "test", 4));
   assert_true(ensr_glob_match("*s*", 3, "test", 4));
+  assert_true(ensr_glob_match("*test", 5, "abtest", 6));
   assert_true(ensr_glob_match("*te*", 4, "abtest", 6));
   assert_true(ensr_glob_match("te*", 3, "test", 4));
 

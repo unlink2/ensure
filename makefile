@@ -10,6 +10,7 @@ TEST_LIBS=-lcmocka
 LDFLAGS=$(DBGLDFLAGS) $(LIBS)
 
 ODIR=obj
+TEST_ODIR=obj/test
 BDIR=bin
 BNAME=$(NAME)
 MAIN=main.o
@@ -35,12 +36,13 @@ bin: $(OBJ)
 
 test:
 	echo "building tests"
-	make bin MAIN=$(TEST_MAIN) BNAME=$(TEST_BNAME) LIBS=$(TEST_LIBS)
+	make bin MAIN=$(TEST_MAIN) BNAME=$(TEST_BNAME) ODIR=$(TEST_ODIR) LIBS=$(TEST_LIBS)
 
 .PHONY: clean
 
 clean:
 	rm -f ./$(ODIR)/*.o
+	rm -f ./$(TEST_ODIR)/*.o
 	rm -f ./$(BDIR)/$(BNAME)
 	rm -f ./$(BDIR)/$(TEST_BNAME)
 

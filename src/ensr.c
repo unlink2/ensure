@@ -131,10 +131,15 @@ struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
     break;
   case '?':
     gpat.match_any = true;
+    gpat.c = 0;
     break;
   case '*':
+    gpat.c = 0;
     gpat.match_any = true;
     gpat.match_until = ensr_glob_patnext(pat, pat_len, i + 1).c;
+    if (!gpat.match_until) {
+      gpat.match_until = -1;
+    }
     break;
   default:
     break;
@@ -150,9 +155,8 @@ _Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
   memset(&patc, 0, sizeof(patc));
 
   char c = '\0';
-
   size_t i = 0;
-  for (i = 0; pati < pat_len && i < str_len; i++) {
+  for (i = 0; i < str_len; i++) {
     c = str[i];
     if (!patc.match_until || patc.match_until == c) {
       patc = ensr_glob_patnext(pat, pat_len, pati);
