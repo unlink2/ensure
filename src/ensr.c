@@ -119,6 +119,7 @@ size_t ensr_glob_next(const char *pat, const char **str, size_t n,
 struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
                                       size_t i) {
   struct ensr_globpat gpat;
+  memset(&gpat, 0, sizeof(gpat));
   // get next pattern char
   gpat.c = pat[i];
   gpat.read = 1;
