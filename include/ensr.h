@@ -177,7 +177,7 @@ int ensr_pid_running(int pid);
 /**
  * Check if the name is a valid program
  */
-int ensr_in_path(const char *path);
+int ensr_in_path(const char *path, const char *name);
 
 /**
  * Checks if file exists

@@ -378,5 +378,13 @@ FAIL:
 struct ensr_proc ensr_proc_pid(int pid) { ENSR_MOD_OFF("proc"); }
 #endif
 
+#ifdef ENSR_MOD_PATH
+
+int ensr_in_path(const char *path, const char *name) { return -1; }
+#else
+
+int ensr_in_path(const char *path, const char *name) { ENSR_MODE_OFF("path"); }
+#endif
+
 // TODO: implement for each platform
 int ensr_platform_init(void) { return 0; }
