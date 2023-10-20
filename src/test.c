@@ -23,21 +23,21 @@ void test_glob(void **state) {
     assert_int_equal('t', ensr_glob_patnext("\\*est", 5, 4).c);
   }
 
-  assert_true(ensr_glob_match("test", 4, "test", 4));
-  assert_true(ensr_glob_match("te\\*st", 6, "te*st", 5));
-  assert_true(ensr_glob_match("te\\?st", 6, "te?st", 5));
-  assert_true(ensr_glob_match("te\\Xst", 6, "teXst", 5));
-  assert_true(ensr_glob_match("?est", 4, "test", 4));
-  assert_true(ensr_glob_match("*est", 4, "test", 4));
-  assert_true(ensr_glob_match("*st", 3, "test", 4));
-  assert_true(ensr_glob_match("*s*", 3, "test", 4));
-  assert_true(ensr_glob_match("*test", 5, "abtest", 6));
-  assert_true(ensr_glob_match("*te*", 4, "abtest", 6));
-  assert_true(ensr_glob_match("te*", 3, "test", 4));
+  assert_true(ensr_glob_match("test", "test"));
+  assert_true(ensr_glob_match("te\\*st", "te*st"));
+  assert_true(ensr_glob_match("te\\?st", "te?st"));
+  assert_true(ensr_glob_match("te\\Xst", "teXst"));
+  assert_true(ensr_glob_match("?est", "test"));
+  assert_true(ensr_glob_match("*est", "test"));
+  assert_true(ensr_glob_match("*st", "test"));
+  assert_true(ensr_glob_match("*s*", "test"));
+  assert_true(ensr_glob_match("*test", "abtest"));
+  assert_true(ensr_glob_match("*te*", "abtest"));
+  assert_true(ensr_glob_match("te*", "test"));
 
-  assert_false(ensr_glob_match("?est", 4, "tast", 4));
-  assert_false(ensr_glob_match("*s*", 4, "teat", 4));
-  assert_false(ensr_glob_match("*es", 3, "test", 4));
+  assert_false(ensr_glob_match("?est", "tast"));
+  assert_false(ensr_glob_match("*s*", "teat"));
+  assert_false(ensr_glob_match("*es", "test"));
 }
 
 int main(int arc, char **argv) {

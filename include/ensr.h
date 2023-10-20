@@ -121,8 +121,7 @@ struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
 //  ?: Matches a single character
 //  \x: Matches the literal character x
 // TODO: put glob documnation in man
-_Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
-                      size_t str_len);
+_Bool ensr_glob_match(const char *pat, const char *str);
 
 _Bool ensr_strnisint(const char *str, size_t n);
 void ensr_trimnl(char *s);

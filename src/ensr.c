@@ -149,8 +149,9 @@ struct ensr_globpat ensr_glob_patnext(const char *pat, size_t pat_len,
   return gpat;
 }
 
-_Bool ensr_glob_match(const char *pat, size_t pat_len, const char *str,
-                      size_t str_len) {
+_Bool ensr_glob_match(const char *pat, const char *str) {
+  size_t pat_len = strlen(pat);
+  size_t str_len = strlen(str);
   size_t pati = 0;
   struct ensr_globpat patc;
   memset(&patc, 0, sizeof(patc));
@@ -278,7 +279,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
       break;
     }
 
-    if (ensr_glob_match(comm, strlen(comm), proc->comm, strlen(proc->comm))) {
+    if (ensr_glob_match(comm, proc->comm)) {
       count++;
       ensr_fproc(cfg, proc);
     }
@@ -379,8 +380,29 @@ struct ensr_proc ensr_proc_pid(int pid) { ENSR_MOD_OFF("proc"); }
 #endif
 
 #ifdef ENSR_MOD_PATH
+#ifdef __unix__
+int ensr_in_path(const char *path, const char *name) {
+  if (!path || !name) {
+    return -1;
+  }
 
-int ensr_in_path(const char *path, const char *name) { return -1; }
+  size_t name_len = strlen(name);
+  size_t path_len = strlen(path);
+
+  char buf[ENSR_PATH_MAX];
+  memset(buf, 0, sizeof(buf));
+
+  char *clone_path = strndup(path, path_len);
+  char *ppath = clone_path;
+
+  char *p = NULL;
+  while ((p = strsep(&ppath, ":"))) {
+  }
+
+  free(clone_path);
+  return -1;
+}
+#endif
 #else
 
 int ensr_in_path(const char *path, const char *name) { ENSR_MODE_OFF("path"); }
