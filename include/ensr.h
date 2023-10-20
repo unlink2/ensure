@@ -1,6 +1,7 @@
 #ifndef ENSR_H_
 #define ENSR_H_
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -66,24 +67,29 @@ enum ensr_mode {
 enum ensr_mode ensr_mode_from(const char *s);
 
 struct ensr_config {
+  // general settings
   _Bool verbose;
-
   enum ensr_mode mode;
+
+  // input array
   const char **input;
   size_t input_len;
 
-  const char *rule_name;
-  const char *proc;
-  int pid;
-
+  // io
   FILE *in;
   FILE *out;
-
+#ifdef ENSR_MOD_PROC
+  const char *proc;
+  int pid;
+#endif
 #ifdef ENSR_MOD_FMT
   const char *fmt_ok;
   const char *fmt_warn;
   const char *fmt_err;
   const char *fmt_reset;
+#endif
+#ifdef ENSR_MOD_PATH
+  bool path_all;
 #endif
 
   const char *path;
@@ -176,10 +182,12 @@ int ensr_pid_running(int pid);
 /**
  * Check if the name is a valid program
  */
-int ensr_in_path(const char *path, const char *name);
+int ensr_in_path(const struct ensr_config *cfg, const char *path,
+                 const char *name);
 
 /**
  * Checks if file exists
+ * returns 0 if it dies not exist, 1 on success, -1 on error
  */
 int ensr_path_exists(const char *path);
 

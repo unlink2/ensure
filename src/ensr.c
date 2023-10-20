@@ -381,13 +381,20 @@ struct ensr_proc ensr_proc_pid(int pid) { ENSR_MOD_OFF("proc"); }
 
 #ifdef ENSR_MOD_PATH
 #ifdef __unix__
-int ensr_in_path(const char *path, const char *name) {
+
+int ensr_in_path(const struct ensr_config *cfg, const char *path,
+                 const char *name) {
   if (!path || !name) {
     return -1;
   }
 
   size_t name_len = strlen(name);
   size_t path_len = strlen(path);
+
+  if (strncmp(name, "..", name_len) == 0 || strncmp(name, ".", name_len) == 0 ||
+      strncmp(name, "/", name_len) == 0) {
+    return -1;
+  }
 
   char buf[ENSR_PATH_MAX];
   memset(buf, 0, sizeof(buf));
@@ -396,12 +403,24 @@ int ensr_in_path(const char *path, const char *name) {
   char *ppath = clone_path;
 
   char *p = NULL;
+
+  int found = 0;
+
   while ((p = strsep(&ppath, ":"))) {
+    size_t len = strlen(p);
+    strncat(buf, p, len);
+    if (p[len - 1] != '/') {
+      strcat(buf, "/");
+    }
+    strncat(buf, name, name_len);
   }
 
   free(clone_path);
-  return -1;
+  return found;
 }
+
+int ensr_path_exists(const char *path) {}
+
 #endif
 #else
 
