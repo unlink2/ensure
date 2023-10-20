@@ -61,7 +61,7 @@ enum ensr_mode {
   ENSR_MODE_COMM,
 
   // check if name is in $PATH
-  ENSR_MOD_IN_PATH,
+  ENSR_MODE_IN_SYSPATH,
 };
 
 enum ensr_mode ensr_mode_from(const char *s);
@@ -89,7 +89,7 @@ struct ensr_config {
   const char *fmt_reset;
 #endif
 #ifdef ENSR_MOD_PATH
-  bool path_all;
+  const char *syspath;
 #endif
 
   const char *path;
@@ -129,12 +129,16 @@ _Bool ensr_strnisint(const char *str, size_t n);
 void ensr_trimnl(char *s);
 
 /**
+ * cmp module
+ */
+
+/**
  * Checks if number recieved over stdin is zero
  */
 int ensr_iszero(struct ensr_config *cfg, int n);
 
 /**
- * Process related stuff
+ * Proc module
  * on linux we read proc(5)
  * on bsd we will use sysctl(2)
  * for tests, use a dummy implementation
@@ -151,6 +155,10 @@ struct ensr_proc {
   int uid;
 };
 
+/**
+ * Not platform specific
+ * General proc code
+ */
 int ensr_proc_pid_check(struct ensr_config *cfg, int pid);
 
 int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
@@ -172,14 +180,24 @@ void ensr_fproc_header(struct ensr_config *cfg);
  */
 struct ensr_proc *ensr_proc_pids(size_t *len);
 
-int ensr_comm_running(const char *proc_name);
-int ensr_pid_running(int pid);
+/**
+ * Path module
+ */
 
 /**
- * Check if the name is a valid program
+ * Takes a path and checks if name is in it
+ * outputs results to cfg->out
  */
-int ensr_in_path(const struct ensr_config *cfg, const char *path,
-                 const char *name);
+int ensr_syspath_check(const struct ensr_config *cfg, const char *path,
+                       const char *name);
+
+/**
+ * Platform specific
+ * Check if the name is a valid program
+ * Takes in $PATH and checks if name is a valid member of $PATH
+ */
+int ensr_in_syspath(const struct ensr_config *cfg, const char *path,
+                    const char *name);
 
 int ensr_path_owner(const char *path, const char *usr);
 

@@ -29,7 +29,7 @@ void ensr_args_parse(int argc, char **argv) {
   verb = arg_litn("v", "verbose", 0, 1, "verbose output");
   mode =
       arg_str0("m", "mode", "MODE",
-               "select mode [E(qual)|g(reater)|l(ess)|e(xists)|p(id)|c(omm)]");
+               "select mode [E(qual)|z(ero)|p(id)|c(omm)|w(hich)]");
   inputs = arg_strn(NULL, NULL, "INPUT", 0, 512, "Input depends on mode");
   end = arg_end(20);
 

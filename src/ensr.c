@@ -189,6 +189,8 @@ enum ensr_mode ensr_mode_from(const char *s) {
     return ENSR_MODE_PID;
   case 'c':
     return ENSR_MODE_COMM;
+  case 'w':
+    return ENSR_MODE_IN_SYSPATH;
   default:
     fprintf(stderr, "Unknown mode: %c\n", s[0]);
     exit(-1);
@@ -205,6 +207,8 @@ struct ensr_config ensr_config_env(void) {
   cfg.fmt_err = ensr_getenv(ENSR_ENV_FMT_ERR, ENSR_CFG_FMT_ERR);
   cfg.fmt_ok = ensr_getenv(ENSR_ENV_FMT_OK, ENSR_CFG_FMT_OK);
   cfg.fmt_warn = ensr_getenv(ENSR_ENV_FMT_WARN, ENSR_CFG_FMT_WARN);
+
+  cfg.syspath = getenv("PATH");
 
   cfg.in = stdin;
   cfg.out = stdout;
@@ -382,8 +386,8 @@ struct ensr_proc ensr_proc_pid(int pid) { ENSR_MOD_OFF("proc"); }
 #ifdef ENSR_MOD_PATH
 #ifdef __unix__
 
-int ensr_in_path(const struct ensr_config *cfg, const char *path,
-                 const char *name) {
+int ensr_in_syspathh(const struct ensr_config *cfg, const char *path,
+                     const char *name) {
   if (!path || !name) {
     return -1;
   }
