@@ -95,10 +95,6 @@ struct ensr_config {
   const char *path;
 };
 
-struct ensr_ctx {
-  _Bool header_drawn;
-};
-
 struct ensr_globpat {
   size_t read; // how many bytes of the pattern were consumed
   char c;
@@ -166,7 +162,7 @@ int ensr_proc_name_check(struct ensr_config *cfg, const char *comm,
  * This will always return a single proc
  */
 struct ensr_proc ensr_proc_pid(int pid);
-void ensr_fproc_header(struct ensr_config *cfg, struct ensr_ctx *ctx);
+void ensr_fproc_header(struct ensr_config *cfg);
 
 /**
  * Platform specific
@@ -184,12 +180,6 @@ int ensr_pid_running(int pid);
  */
 int ensr_in_path(const struct ensr_config *cfg, const char *path,
                  const char *name);
-
-/**
- * Checks if file exists
- * returns 0 if it dies not exist, 1 on success, -1 on error
- */
-int ensr_path_exists(const char *path);
 
 int ensr_path_owner(const char *path, const char *usr);
 

@@ -19,7 +19,7 @@ const char *ensr_getenv(const char *env, const char * or) {
   return v;
 }
 
-int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, const char *input) {
+int ensr_do(struct ensr_config *cfg, const char *input) {
   int ok = -1;
   switch (cfg->mode) {
   case ENSR_MODE_COMM: {
@@ -29,7 +29,6 @@ int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, const char *input) {
       return -1;
     }
 
-    ensr_fproc_header(cfg, ctx);
     ok = ensr_proc_name_check(cfg, input, procs, len);
 
     free(procs);
@@ -37,7 +36,6 @@ int ensr_do(struct ensr_config *cfg, struct ensr_ctx *ctx, const char *input) {
   }
   case ENSR_MODE_PID: {
     if (ensr_strnisint(input, strlen(input))) {
-      ensr_fproc_header(cfg, ctx);
       ok = ensr_proc_pid_check(cfg, atoi(input));
     } else {
       ensr_fmt(cfg->out, cfg->fmt_warn);
@@ -67,14 +65,22 @@ int ensr_main(struct ensr_config *cfg) {
     fprintf(stderr, "Platform init failed!\n");
     return -1;
   }
-  struct ensr_ctx ctx;
-  memset(&ctx, 0, sizeof(ctx));
 
   int ok = 0;
 
+  // draw headers
+  switch (cfg->mode) {
+  case ENSR_MODE_PID:
+  case ENSR_MODE_COMM:
+    ensr_fproc_header(cfg);
+    break;
+  default:
+    break;
+  }
+
   // process inputs
   for (size_t i = 0; i < cfg->input_len; i++) {
-    if (ensr_do(cfg, &ctx, cfg->input[i]) != 0) {
+    if (ensr_do(cfg, cfg->input[i]) != 0) {
       ok = -1;
     }
   }
@@ -85,7 +91,7 @@ int ensr_main(struct ensr_config *cfg) {
     char buf[buflen];
     while (fgets(buf, buflen, cfg->in)) {
       ensr_trimnl(buf);
-      if (ensr_do(cfg, &ctx, buf) != 0) {
+      if (ensr_do(cfg, buf) != 0) {
         ok = -1;
       }
     }
@@ -243,14 +249,8 @@ int ensr_iszero(int n) { ENSR_MOD_OFF("cmp"); }
 
 #ifdef ENSR_MOD_PROC
 
-void ensr_fproc_header(struct ensr_config *cfg, struct ensr_ctx *ctx) {
-  // only draw header once
-  if (ctx->header_drawn) {
-    return;
-  }
-
+void ensr_fproc_header(struct ensr_config *cfg) {
   fputs("status\ttype\tpid\tcomm\n", cfg->out);
-  ctx->header_drawn = true;
 }
 
 void ensr_fproc(struct ensr_config *cfg, struct ensr_proc *proc) {
@@ -404,7 +404,7 @@ int ensr_in_path(const struct ensr_config *cfg, const char *path,
 
   char *p = NULL;
 
-  int found = 0;
+  int found = -1;
 
   while ((p = strsep(&ppath, ":"))) {
     size_t len = strlen(p);
@@ -413,13 +413,21 @@ int ensr_in_path(const struct ensr_config *cfg, const char *path,
       strcat(buf, "/");
     }
     strncat(buf, name, name_len);
+
+    if (access(buf, F_OK) == 0) {
+      fprintf(cfg->out, "%s\tpath\t%s\t%s\n", ENSR_CFG_OK, name, buf);
+      found = 0;
+    }
+  }
+
+  // no match, output error
+  if (found == -1) {
+    fprintf(cfg->out, "%s\tpath\t%s\t%s\n", ENSR_CFG_ERR, name, buf);
   }
 
   free(clone_path);
   return found;
 }
-
-int ensr_path_exists(const char *path) {}
 
 #endif
 #else
